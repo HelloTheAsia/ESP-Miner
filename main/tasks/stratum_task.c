@@ -21,6 +21,7 @@
 #define BASE_DELAY_MS 5000
 #define MAX_RETRY_ATTEMPTS 5
 static const char * TAG = "stratum_task";
+static const char * TAG_LOG = "test_log";
 static ip_addr_t ip_Addr;
 static bool bDNSFound = false;
 static bool bDNSInvalid = false;
@@ -184,14 +185,17 @@ void stratum_task(void * pvParameters)
                 free(line);
 
                 if (stratum_api_v1_message.method == MINING_NOTIFY) {
+                    ESP_LOGE(TAG_LOG, "输出矿池信息_OutPut MINING_NOTIFY");
                     SYSTEM_notify_new_ntime(GLOBAL_STATE, stratum_api_v1_message.mining_notification->ntime);
                     if (stratum_api_v1_message.should_abandon_work &&
                         (GLOBAL_STATE->stratum_queue.count > 0 || GLOBAL_STATE->ASIC_jobs_queue.count > 0)) {
                         cleanQueue(GLOBAL_STATE);
+                        ESP_LOGE(TAG_LOG, "输出矿池信息_OutPut First");
                     }
                     if (GLOBAL_STATE->stratum_queue.count == QUEUE_SIZE) {
                         mining_notify * next_notify_json_str = (mining_notify *) queue_dequeue(&GLOBAL_STATE->stratum_queue);
                         STRATUM_V1_free_mining_notify(next_notify_json_str);
+                        ESP_LOGE(TAG_LOG, "输出矿池信息_OutPut Second");
                     }
 
                     stratum_api_v1_message.mining_notification->difficulty = SYSTEM_TASK_MODULE.stratum_difficulty;
